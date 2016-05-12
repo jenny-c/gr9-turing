@@ -108,7 +108,7 @@ loop
 
 end loop
 
-put "Thank you!"
+put skip, "Thank you!"
 
 
 
