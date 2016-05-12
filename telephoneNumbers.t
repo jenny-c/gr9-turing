@@ -1,59 +1,86 @@
 % declarartion section
 
-var telephoneNumbers : array 1 .. * of string := init ("416-900-2328", "647-885-4242", "416-123-3434", "647-872-6475", "416-576-2345")
-var names : array 1 .. * of string := init ("Home Phone", "Joanna Chen", "Robert Chen", "Bob Joe", "Dave Dave")
-var numberOfTelephoneNumbers : int
-var indexValue : int
-var currentNumber : string
+const TELEPHONE_NUMBER_FILE := "telephoneNumbers.text"
+const TELEPHONE_NAME_FILE := "telephoneNumberNames.text"
 
-forward procedure getPhoneNumber
+var currentNumber : string
+var telephoneNumberFileID : int
+var telephoneNumberNameFileID : int
+var numberOfLines : int
+var lineOfText : string
+var nameFound : boolean
+
+forward procedure displayTelephoneNumber
+forward procedure getNumber
 forward procedure getValidNumber
 forward procedure greetUser
 
 
-body procedure getPhoneNumber
+body procedure displayTelephoneNumber
 
-	 % initialization
-	 numberOfTelephoneNumbers := upper (telephoneNumbers)
+	 if nameFound = true then
 
-	 % get phone number and output
-	 loop
+		  for line : 1 .. numberOfLines
 
-		  getValidNumber
+				get : telephoneNumberNameFileID, lineOfText : *
 
-		  if telephoneNumbers (indexValue) = "0" then
+		  end for
 
-				put "Thank you!"
+		  put lineOfText
 
-		  elsif telephoneNumbers (indexValue) not= currentNumber and telephoneNumbers (indexValue) not= "0" then
-				color (red)
-				put "*** Person not found"
-				color (black)
-		  end if
+	 else
 
-	 end loop
+		  colour (red)
+		  put "*** Person not found."
+		  colour (black)
 
-end getPhoneNumber
+	 end if
+
+	 close : telephoneNumberFileID
+	 close : telephoneNumberNameFileID
+
+end displayTelephoneNumber
 
 
-body procedure getValidNumber
+body procedure getNumber
+
+	 open : telephoneNumberFileID, TELEPHONE_NUMBER_FILE, get
+	 open : telephoneNumberNameFileID, TELEPHONE_NAME_FILE, get
 
 	 put skip, "Phone number [0 to exit]: " ..
 	 get currentNumber
 
-	 for number : 1 .. numberOfTelephoneNumbers
 
-		  % compare the data
-		  if telephoneNumbers (number) = currentNumber or telephoneNumbers (number) = "0" then
-				indexValue := number
+end getNumber
 
-				exit when telephoneNumbers (number) = "0"
 
-				put telephoneNumbers (number), ": ", names (number)
+body procedure getValidNumber
+
+	 numberOfLines := 0
+
+	 loop
+
+		  get : telephoneNumberFileID, lineOfText : *
+
+		  numberOfLines := numberOfLines + 1
+
+		  if lineOfText = currentNumber then
+
+				nameFound := true
+
+				put lineOfText, ": " ..
+
+				exit
+
+		  else
+
+				nameFound := false
 
 		  end if
+		  
+		  exit when eof (telephoneNumberFileID)
 
-	 end for
+	 end loop
 
 end getValidNumber
 
@@ -62,14 +89,26 @@ body procedure greetUser
 
 	 put "Welcome to the Virtual Phonebook."
 	 put "You will be prompted for a phone number."
-	 
+
 end greetUser
 
 
 % main program
 
 greetUser
-getPhoneNumber
+
+loop
+
+	 getNumber
+
+	 exit when currentNumber = "0"
+
+	 getValidNumber
+	 displayTelephoneNumber
+
+end loop
+
+put "Thank you!"
 
 
 
