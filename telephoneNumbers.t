@@ -1,4 +1,4 @@
-% declarartion section
+% declaration section
 
 const TELEPHONE_NUMBER_FILE := "telephoneNumbers.text"
 const TELEPHONE_NAME_FILE := "telephoneNumberNames.text"
