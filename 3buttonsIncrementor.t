@@ -69,7 +69,7 @@ body procedure button2Click
 
 	 GUI.Dispose (button2)
 
-	 button2Counter := button2Counter + 2
+	 button2Counter := button2Counter + 1
 
 	 button2 := GUI.CreateButton (X, button2Y, BUTTON_WIDTH, intstr (button2Counter), button2Click)
 
@@ -80,7 +80,7 @@ body procedure button3Click
 
 	 GUI.Dispose (button3)
 
-	 button3Counter := button3Counter + 3
+	 button3Counter := button3Counter + 1
 
 	 button3 := GUI.CreateButton (X, button3Y, BUTTON_WIDTH, intstr (button3Counter), button3Click)
 
