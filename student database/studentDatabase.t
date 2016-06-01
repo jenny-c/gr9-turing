@@ -29,6 +29,7 @@ defaultFont := Font.New ("Arial :24:bold")
 forward procedure closeFiles
 forward procedure displayResults
 forward procedure displayError (choice : string)
+forward procedure drawTitle
 forward procedure handleClick
 forward procedure initializeGUI
 forward procedure openFiles
@@ -51,11 +52,10 @@ body procedure initializeGUI
 
 
 	 % intialize buttons
-	 
-	 x := 60
-	 y := maxy - 100
-	 Font.Draw ("Welcome to the Student Database!", x, y, defaultFont, black)
 
+	 drawTitle
+
+	 x := 60
 	 y := maxy - 150
 	 buttonText := "name"
 	 buttonName := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
@@ -94,28 +94,35 @@ end closeFiles
 body procedure displayError (choice : string)
 
 	 GUI.SetBackgroundColour (BACKGROUND_COLOUR)
+	 
+	 const X := 100
+	 const Y := 60
 
 	 if choice = "name" then
 
-		  Font.Draw ("Name not found", 300, 60, defaultFont, blue)
+		  Font.Draw ("Name not found", X, Y, defaultFont, blue)
 
 	 elsif choice = "rollNumber" then
 
-		  Font.Draw ("Roll number must be between 1 - " + intstr (NUMBER_OF_STUDENTS), 300, 60, defaultFont, blue)
+		  Font.Draw ("Roll number must be between 1 - " + intstr (NUMBER_OF_STUDENTS), X, Y, defaultFont, blue)
 
 	 elsif choice = "studentNumber" then
 
-		  Font.Draw ("Student number not found", 300, 60, defaultFont, blue)
+		  Font.Draw ("Student number not found", X, Y, defaultFont, blue)
 
-	 else
+	 elsif searchItem = "" then
 
-		  Font.Draw ("Search area cannot be blank.", 300, 60, defaultFont, blue)
+		  Font.Draw ("Search area cannot be blank.", X, Y, defaultFont, blue)
 
 	 end if
 
 	 GUI.SetText (searchBar, "")
 	 
-	 initializeGUI
+	 closeFiles
+	 
+	 openFiles
+
+	 drawTitle
 
 end displayError
 
@@ -164,10 +171,22 @@ body procedure displayResults
 	 openFiles
 
 	 GUI.SetText (searchBar, "")
-	 
-	 initializeGUI
+
+	 drawTitle
 
 end displayResults
+
+
+body procedure drawTitle
+
+	 var x : int
+	 var y : int
+
+	 x := 60
+	 y := maxy - 100
+	 Font.Draw ("Welcome to the Student Database!", x, y, defaultFont, black)
+
+end drawTitle
 
 
 body procedure handleClick
@@ -225,6 +244,13 @@ body procedure searchByName
 
 	 loop
 
+		  if eof (nameID) then
+
+				displayError ("name")
+				exit
+
+		  end if
+
 		  get : nameID, currentName : *
 
 		  count := count + 1
@@ -233,13 +259,6 @@ body procedure searchByName
 
 				displayResults
 
-				exit
-
-		  end if
-
-		  if eof (nameID) then
-
-				displayError ("name")
 				exit
 
 		  end if
@@ -257,6 +276,13 @@ body procedure searchByRollNumber
 
 	 loop
 
+		  if eof (rollNumberID) then
+
+				displayError ("rollNumber")
+				exit
+
+		  end if
+
 		  get : rollNumberID, currentRollNumber : *
 
 		  count := count + 1
@@ -265,13 +291,6 @@ body procedure searchByRollNumber
 
 				displayResults
 
-				exit
-
-		  end if
-
-		  if eof (rollNumberID) then
-
-				displayError ("rollNumber")
 				exit
 
 		  end if
@@ -289,6 +308,13 @@ body procedure searchByStudentNumber
 
 	 loop
 
+		  if eof (studentNumberID) then
+
+				displayError ("studentNumber")
+				exit
+
+		  end if
+
 		  get : studentNumberID, currentStudentNumber : *
 
 		  count := count + 1
@@ -297,13 +323,6 @@ body procedure searchByStudentNumber
 
 				displayResults
 
-				exit
-
-		  end if
-
-		  if eof (studentNumberID) then
-
-				displayError ("studentNumber")
 				exit
 
 		  end if
