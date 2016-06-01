@@ -17,7 +17,6 @@ var count : int
 var defaultFont : int
 var nameID : int
 var name : int
-var personFound : boolean
 var rollNumberID : int
 var rollNumber : int
 var searchBar : int
@@ -29,7 +28,7 @@ defaultFont := Font.New ("Arial :24:bold")
 
 forward procedure closeFiles
 forward procedure displayResults
-forward procedure displayError
+forward procedure displayError (choice : string)
 forward procedure handleClick
 forward procedure initializeGUI
 forward procedure openFiles
@@ -52,9 +51,12 @@ body procedure initializeGUI
 
 
 	 % intialize buttons
-
+	 
 	 x := 60
-	 y := maxy - 75
+	 y := maxy - 100
+	 Font.Draw ("Welcome to the Student Database!", x, y, defaultFont, black)
+
+	 y := maxy - 150
 	 buttonText := "name"
 	 buttonName := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
 
@@ -74,7 +76,7 @@ body procedure initializeGUI
 	 % intialize text field
 
 	 x := 60
-	 y := maxy - 120
+	 y := maxy - 200
 	 searchBar := GUI.CreateTextField (x, y, BUTTON_WIDTH * 4, "", processText)
 
 end initializeGUI
@@ -89,13 +91,31 @@ body procedure closeFiles
 end closeFiles
 
 
-body procedure displayError
+body procedure displayError (choice : string)
 
 	 GUI.SetBackgroundColour (BACKGROUND_COLOUR)
 
-	 Font.Draw ("Person not found", 300, 60, defaultFont, blue)
-	 
+	 if choice = "name" then
+
+		  Font.Draw ("Name not found", 300, 60, defaultFont, blue)
+
+	 elsif choice = "rollNumber" then
+
+		  Font.Draw ("Roll number must be between 1 - " + intstr (NUMBER_OF_STUDENTS), 300, 60, defaultFont, blue)
+
+	 elsif choice = "studentNumber" then
+
+		  Font.Draw ("Student number not found", 300, 60, defaultFont, blue)
+
+	 else
+
+		  Font.Draw ("Search area cannot be blank.", 300, 60, defaultFont, blue)
+
+	 end if
+
 	 GUI.SetText (searchBar, "")
+	 
+	 initializeGUI
 
 end displayError
 
@@ -144,6 +164,8 @@ body procedure displayResults
 	 openFiles
 
 	 GUI.SetText (searchBar, "")
+	 
+	 initializeGUI
 
 end displayResults
 
@@ -152,15 +174,13 @@ body procedure handleClick
 
 	 var choice : int
 
-	 personFound := false
-
 	 searchItem := GUI.GetText (searchBar)
 
 	 choice := GUI.GetEventWidgetID
-	 
+
 	 if searchItem = "" then
-	 
-		  displayError
+
+		  displayError ("blank")
 
 	 elsif choice = buttonName then
 
@@ -213,21 +233,18 @@ body procedure searchByName
 
 				displayResults
 
-				personFound := true
-
 				exit
 
 		  end if
 
-		  exit when eof (nameID)
+		  if eof (nameID) then
+
+				displayError ("name")
+				exit
+
+		  end if
 
 	 end loop
-
-	 if personFound = false then
-
-		  displayError
-
-	 end if
 
 end searchByName
 
@@ -248,21 +265,18 @@ body procedure searchByRollNumber
 
 				displayResults
 
-				personFound := true
-
 				exit
 
 		  end if
 
-		  exit when eof (rollNumberID)
+		  if eof (rollNumberID) then
+
+				displayError ("rollNumber")
+				exit
+
+		  end if
 
 	 end loop
-
-	 if personFound = false then
-
-		  displayError
-
-	 end if
 
 end searchByRollNumber
 
@@ -283,21 +297,18 @@ body procedure searchByStudentNumber
 
 				displayResults
 
-				personFound := true
-
 				exit
 
 		  end if
 
-		  exit when eof (studentNumberID)
+		  if eof (studentNumberID) then
+
+				displayError ("studentNumber")
+				exit
+
+		  end if
 
 	 end loop
-
-	 if personFound = false then
-
-		  displayError
-
-	 end if
 
 end searchByStudentNumber
 
@@ -311,8 +322,8 @@ body procedure wrapUp
 	 GUI.Dispose (buttonStudentNumber)
 	 GUI.Dispose (buttonQuit)
 	 GUI.Dispose (searchBar)
-	 
-	 Font.Draw ("Thank you for using the Student Database!", 1, 1, defaultFont, black)
+
+	 Font.Draw ("Thank you for using the Student Database!", 50, 100, defaultFont, black)
 
 end wrapUp
 
