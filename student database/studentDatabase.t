@@ -7,6 +7,7 @@ const BACKGROUND_COLOUR := white
 const NUMBER_OF_STUDENTS := 8
 const NAME_FILE := "name.text"
 const ROLL_NUMBER_FILE := "rollNumber.text"
+const SPACER := 50
 const STUDENT_NUMBER_FILE := "studentNumber.text"
 
 var buttonName : int
@@ -24,7 +25,7 @@ var searchItem : string
 var studentNumberID : int
 var studentNumber : int
 
-defaultFont := Font.New ("Arial :24:bold")
+defaultFont := Font.New ("Arial :24")
 
 forward procedure closeFiles
 forward procedure displayResults
@@ -44,7 +45,7 @@ body procedure initializeGUI
 
 	 % declaration section
 
-	 const BUTTON_WIDTH := 150
+	 const BUTTON_WIDTH := 125
 
 	 var buttonText : string
 	 var x : int
@@ -55,29 +56,29 @@ body procedure initializeGUI
 
 	 drawTitle
 
-	 x := 60
-	 y := maxy - 150
+	 x := BUTTON_WIDTH - SPACER
+	 y := maxy - SPACER * 3
 	 buttonText := "name"
 	 buttonName := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
 
-	 x := x + 150
+	 x := x + BUTTON_WIDTH + SPACER
 	 buttonText := "roll"
 	 buttonRollNumber := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
 
-	 x := x + 150
+	 x := x + BUTTON_WIDTH + SPACER
 	 buttonText := "student #"
 	 buttonStudentNumber := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
 
-	 x := x + 150
+	 x := x + BUTTON_WIDTH + SPACER
 	 buttonText := "quit"
 	 buttonQuit := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, GUI.Quit)
 
 
 	 % intialize text field
 
-	 x := 60
-	 y := maxy - 200
-	 searchBar := GUI.CreateTextField (x, y, BUTTON_WIDTH * 4, "", processText)
+	 x := BUTTON_WIDTH - SPACER
+	 y := maxy - SPACER * 4
+	 searchBar := GUI.CreateTextField (x, y, BUTTON_WIDTH * 4 + SPACER * 3, "", processText)
 
 end initializeGUI
 
@@ -156,7 +157,7 @@ body procedure displayResults
 
 	 end loop
 
-	 resultsX := 60
+	 resultsX := 75
 	 resultsY := 300
 	 Font.Draw (currentName, resultsX, resultsY, defaultFont, red)
 
@@ -182,7 +183,7 @@ body procedure drawTitle
 	 var x : int
 	 var y : int
 
-	 x := 60
+	 x := 75
 	 y := maxy - 100
 	 Font.Draw ("Welcome to the Student Database!", x, y, defaultFont, black)
 
@@ -220,9 +221,9 @@ end handleClick
 
 body procedure openFiles
 
-	 open : nameID, NAME_FILE, get
-	 open : rollNumberID, ROLL_NUMBER_FILE, get
-	 open : studentNumberID, STUDENT_NUMBER_FILE, get
+	 open : nameID, NAME_FILE, get, seek
+	 open : rollNumberID, ROLL_NUMBER_FILE, get, seek
+	 open : studentNumberID, STUDENT_NUMBER_FILE, get, seek
 
 end openFiles
 
