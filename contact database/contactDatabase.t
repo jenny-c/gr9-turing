@@ -3,7 +3,6 @@ import GUI
 % declaration section
 
 const BACKGROUND_COLOUR := white
-const NUMBER_OF_STUDENTS := 8
 const NAME_FILE := "name.text"
 const ADDRESS_FILE := "address.text"
 const SPACER := 50
@@ -16,6 +15,7 @@ var buttonAddress : int
 var buttonPhoneNumber : int
 var count : int
 var defaultFont : int
+var location : int
 var nameID : int
 var name : int
 var addressID : int
@@ -29,15 +29,13 @@ defaultFont := Font.New ("Arial :24")
 
 forward procedure closeFiles
 forward procedure displayResults
-forward procedure displayError (choice : string)
+forward procedure displayError (choice : int)
 forward procedure drawTitle
 forward procedure handleClick
 forward procedure initializeGUI
 forward procedure openFiles
 forward procedure processText (textFromField : string)
-forward procedure searchByName
-forward procedure searchByAddress
-forward procedure searchByPhoneNumber
+forward procedure search (userChoice : int, fileID : int)
 forward procedure wrapUp
 
 
@@ -99,7 +97,7 @@ body procedure closeFiles
 end closeFiles
 
 
-body procedure displayError (choice : string)
+body procedure displayError (choice : int)
 
 	 GUI.SetBackgroundColour (BACKGROUND_COLOUR)
 
@@ -108,17 +106,17 @@ body procedure displayError (choice : string)
 
 	 var errorMessage : string
 
-	 if choice = "name" then
+	 if choice = buttonName then
 
 		  errorMessage := "Name not found"
 		  Font.Draw (errorMessage, X, Y, defaultFont, blue)
 
-	 elsif choice = "address" then
+	 elsif choice = buttonAddress then
 
 		  errorMessage := "Address not found"
 		  Font.Draw (errorMessage, X, Y, defaultFont, blue)
 
-	 elsif choice = "phoneNumber" then
+	 elsif choice = buttonPhoneNumber then
 
 		  errorMessage := "Phone number not found"
 		  Font.Draw (errorMessage, X, Y, defaultFont, blue)
@@ -146,29 +144,17 @@ body procedure displayResults
 	 var currentName : string
 	 var currentAddress : string
 	 var currentPhoneNumber : string
-	 var lineCounter : int
 	 var resultsX : int
 	 var resultsY : int
 
-	 lineCounter := 0
-
 	 GUI.SetBackgroundColour (BACKGROUND_COLOUR)
 
-	 closeFiles
-
-	 openFiles
-
-	 loop
-
+		  seek : nameID, location
 		  get : nameID, currentName : *
+		  seek : addressID, location
 		  get : addressID, currentAddress : *
+		  seek : phoneNumberID, location
 		  get : phoneNumberID, currentPhoneNumber : *
-
-		  lineCounter := lineCounter + 1
-
-		  exit when lineCounter >= count
-
-	 end loop
 
 	 resultsX := 75
 	 resultsY := 300
@@ -179,10 +165,6 @@ body procedure displayResults
 
 	 resultsY := resultsY - 70
 	 Font.Draw (currentPhoneNumber, resultsX, resultsY, defaultFont, red)
-
-	 closeFiles
-
-	 openFiles
 
 	 GUI.SetText (searchBar, "")
 
@@ -215,23 +197,23 @@ body procedure handleClick
 
 	 if searchItem = "" then
 
-		  displayError ("blank")
+		  displayError (0)
+
+	 elsif choice = buttonClear then
+
+		  GUI.SetText (searchBar, "")
 
 	 elsif choice = buttonName then
 
-		  searchByName
+		  search (choice, nameID)
 
 	 elsif choice = buttonAddress then
 
-		  searchByAddress
-
-	 elsif choice = buttonPhoneNumber then
-
-		  searchByPhoneNumber
+		  search (choice, addressID)
 
 	 else
 
-		  GUI.SetText (searchBar, "")
+		  search (choice, phoneNumberID)
 
 	 end if
 
@@ -256,27 +238,30 @@ end processText
 
 % 3 types of searching
 
-body procedure searchByName
+body procedure search (userChoice : int, fileID : int)
 
-	 var currentName : string
+	 var currentItem : string
 
 	 count := 0
+	 
+	 seek : fileID, 0
 
 	 loop
 
-		  if eof (nameID) then
+		  if eof (fileID) then
 
-				displayError ("name")
+				displayError (userChoice)
 				exit
 
 		  end if
 
-		  get : nameID, currentName : *
+		  tell : fileID, location
+		  get : fileID, currentItem : *
 
 		  count := count + 1
 
-		  if currentName = searchItem then
-
+		  if currentItem = searchItem then
+		  
 				displayResults
 
 				exit
@@ -285,71 +270,7 @@ body procedure searchByName
 
 	 end loop
 
-end searchByName
-
-
-body procedure searchByAddress
-
-	 var currentAddress : string
-
-	 count := 0
-
-	 loop
-
-		  if eof (addressID) then
-
-				displayError ("address")
-				exit
-
-		  end if
-
-		  get : addressID, currentAddress : *
-
-		  count := count + 1
-
-		  if currentAddress = searchItem then
-
-				displayResults
-
-				exit
-
-		  end if
-
-	 end loop
-
-end searchByAddress
-
-
-body procedure searchByPhoneNumber
-
-	 var currentPhoneNumber : string
-
-	 count := 0
-
-	 loop
-
-		  if eof (phoneNumberID) then
-
-				displayError ("phoneNumber")
-				exit
-
-		  end if
-
-		  get : phoneNumberID, currentPhoneNumber : *
-
-		  count := count + 1
-
-		  if currentPhoneNumber = searchItem then
-
-				displayResults
-
-				exit
-
-		  end if
-
-	 end loop
-
-end searchByPhoneNumber
+end search
 
 
 body procedure wrapUp
