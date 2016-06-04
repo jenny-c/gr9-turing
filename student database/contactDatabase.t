@@ -1,29 +1,29 @@
 import GUI
-setscreen ("graphics: 800, 600")
 
 % declaration section
 
 const BACKGROUND_COLOUR := white
 const NUMBER_OF_STUDENTS := 8
 const NAME_FILE := "name.text"
-const ROLL_NUMBER_FILE := "rollNumber.text"
+const ADDRESS_FILE := "address.text"
 const SPACER := 50
-const STUDENT_NUMBER_FILE := "studentNumber.text"
+const PHONE_NUMBER_FILE := "phoneNumber.text"
 
+var buttonClear : int
 var buttonName : int
 var buttonQuit : int
-var buttonRollNumber : int
-var buttonStudentNumber : int
+var buttonAddress : int
+var buttonPhoneNumber : int
 var count : int
 var defaultFont : int
 var nameID : int
 var name : int
-var rollNumberID : int
-var rollNumber : int
+var addressID : int
+var address : int
 var searchBar : int
 var searchItem : string
-var studentNumberID : int
-var studentNumber : int
+var phoneNumberID : int
+var phoneNumber : int
 
 defaultFont := Font.New ("Arial :24")
 
@@ -36,8 +36,8 @@ forward procedure initializeGUI
 forward procedure openFiles
 forward procedure processText (textFromField : string)
 forward procedure searchByName
-forward procedure searchByRollNumber
-forward procedure searchByStudentNumber
+forward procedure searchByAddress
+forward procedure searchByPhoneNumber
 forward procedure wrapUp
 
 
@@ -46,11 +46,14 @@ body procedure initializeGUI
 	 % declaration section
 
 	 const BUTTON_WIDTH := 125
+	 const RUN_WINDOW_TITLE := "Contact Database by J. Chen"
 
 	 var buttonText : string
 	 var x : int
 	 var y : int
 
+
+	 setscreen ("graphics: 800; 600, nobuttonbar, title: " + RUN_WINDOW_TITLE)
 
 	 % intialize buttons
 
@@ -62,14 +65,18 @@ body procedure initializeGUI
 	 buttonName := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
 
 	 x := x + BUTTON_WIDTH + SPACER
-	 buttonText := "roll"
-	 buttonRollNumber := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
+	 buttonText := "address"
+	 buttonAddress := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
 
 	 x := x + BUTTON_WIDTH + SPACER
-	 buttonText := "student #"
-	 buttonStudentNumber := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
+	 buttonText := "phone #"
+	 buttonPhoneNumber := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
 
 	 x := x + BUTTON_WIDTH + SPACER
+	 buttonText := "clear"
+	 buttonClear := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, handleClick)
+
+	 y := y - SPACER * 7
 	 buttonText := "quit"
 	 buttonQuit := GUI.CreateButton (x, y, BUTTON_WIDTH, buttonText, GUI.Quit)
 
@@ -86,8 +93,8 @@ end initializeGUI
 body procedure closeFiles
 
 	 close : nameID
-	 close : rollNumberID
-	 close : studentNumberID
+	 close : addressID
+	 close : phoneNumberID
 
 end closeFiles
 
@@ -95,32 +102,38 @@ end closeFiles
 body procedure displayError (choice : string)
 
 	 GUI.SetBackgroundColour (BACKGROUND_COLOUR)
-	 
-	 const X := 100
-	 const Y := 60
+
+	 const X := 75
+	 const Y := SPACER * 5
+
+	 var errorMessage : string
 
 	 if choice = "name" then
 
-		  Font.Draw ("Name not found", X, Y, defaultFont, blue)
+		  errorMessage := "Name not found"
+		  Font.Draw (errorMessage, X, Y, defaultFont, blue)
 
-	 elsif choice = "rollNumber" then
+	 elsif choice = "address" then
 
-		  Font.Draw ("Roll number must be between 1 - " + intstr (NUMBER_OF_STUDENTS), X, Y, defaultFont, blue)
+		  errorMessage := "Address not found"
+		  Font.Draw (errorMessage, X, Y, defaultFont, blue)
 
-	 elsif choice = "studentNumber" then
+	 elsif choice = "phoneNumber" then
 
-		  Font.Draw ("Student number not found", X, Y, defaultFont, blue)
+		  errorMessage := "Phone number not found"
+		  Font.Draw (errorMessage, X, Y, defaultFont, blue)
 
-	 elsif searchItem = "" then
+	 else
 
-		  Font.Draw ("Search area cannot be blank.", X, Y, defaultFont, blue)
+		  errorMessage := "Search area cannot be blank"
+		  Font.Draw (errorMessage, X, Y, defaultFont, blue)
 
 	 end if
 
 	 GUI.SetText (searchBar, "")
-	 
+
 	 closeFiles
-	 
+
 	 openFiles
 
 	 drawTitle
@@ -131,8 +144,8 @@ end displayError
 body procedure displayResults
 
 	 var currentName : string
-	 var currentRollNumber : string
-	 var currentStudentNumber : string
+	 var currentAddress : string
+	 var currentPhoneNumber : string
 	 var lineCounter : int
 	 var resultsX : int
 	 var resultsY : int
@@ -148,8 +161,8 @@ body procedure displayResults
 	 loop
 
 		  get : nameID, currentName : *
-		  get : rollNumberID, currentRollNumber : *
-		  get : studentNumberID, currentStudentNumber : *
+		  get : addressID, currentAddress : *
+		  get : phoneNumberID, currentPhoneNumber : *
 
 		  lineCounter := lineCounter + 1
 
@@ -162,10 +175,10 @@ body procedure displayResults
 	 Font.Draw (currentName, resultsX, resultsY, defaultFont, red)
 
 	 resultsY := resultsY - 70
-	 Font.Draw (currentRollNumber, resultsX, resultsY, defaultFont, red)
+	 Font.Draw (currentAddress, resultsX, resultsY, defaultFont, red)
 
 	 resultsY := resultsY - 70
-	 Font.Draw (currentStudentNumber, resultsX, resultsY, defaultFont, red)
+	 Font.Draw (currentPhoneNumber, resultsX, resultsY, defaultFont, red)
 
 	 closeFiles
 
@@ -180,12 +193,14 @@ end displayResults
 
 body procedure drawTitle
 
+	 const TITLE := "Welcome to the Contact Database!"
+
 	 var x : int
 	 var y : int
 
 	 x := 75
 	 y := maxy - 100
-	 Font.Draw ("Welcome to the Student Database!", x, y, defaultFont, black)
+	 Font.Draw (TITLE, x, y, defaultFont, black)
 
 end drawTitle
 
@@ -206,13 +221,17 @@ body procedure handleClick
 
 		  searchByName
 
-	 elsif choice = buttonRollNumber then
+	 elsif choice = buttonAddress then
 
-		  searchByRollNumber
+		  searchByAddress
+
+	 elsif choice = buttonPhoneNumber then
+
+		  searchByPhoneNumber
 
 	 else
 
-		  searchByStudentNumber
+		  GUI.SetText (searchBar, "")
 
 	 end if
 
@@ -222,8 +241,8 @@ end handleClick
 body procedure openFiles
 
 	 open : nameID, NAME_FILE, get, seek
-	 open : rollNumberID, ROLL_NUMBER_FILE, get, seek
-	 open : studentNumberID, STUDENT_NUMBER_FILE, get, seek
+	 open : addressID, ADDRESS_FILE, get, seek
+	 open : phoneNumberID, PHONE_NUMBER_FILE, get, seek
 
 end openFiles
 
@@ -269,26 +288,26 @@ body procedure searchByName
 end searchByName
 
 
-body procedure searchByRollNumber
+body procedure searchByAddress
 
-	 var currentRollNumber : string
+	 var currentAddress : string
 
 	 count := 0
 
 	 loop
 
-		  if eof (rollNumberID) then
+		  if eof (addressID) then
 
-				displayError ("rollNumber")
+				displayError ("address")
 				exit
 
 		  end if
 
-		  get : rollNumberID, currentRollNumber : *
+		  get : addressID, currentAddress : *
 
 		  count := count + 1
 
-		  if currentRollNumber = searchItem then
+		  if currentAddress = searchItem then
 
 				displayResults
 
@@ -298,29 +317,29 @@ body procedure searchByRollNumber
 
 	 end loop
 
-end searchByRollNumber
+end searchByAddress
 
 
-body procedure searchByStudentNumber
+body procedure searchByPhoneNumber
 
-	 var currentStudentNumber : string
+	 var currentPhoneNumber : string
 
 	 count := 0
 
 	 loop
 
-		  if eof (studentNumberID) then
+		  if eof (phoneNumberID) then
 
-				displayError ("studentNumber")
+				displayError ("phoneNumber")
 				exit
 
 		  end if
 
-		  get : studentNumberID, currentStudentNumber : *
+		  get : phoneNumberID, currentPhoneNumber : *
 
 		  count := count + 1
 
-		  if currentStudentNumber = searchItem then
+		  if currentPhoneNumber = searchItem then
 
 				displayResults
 
@@ -330,20 +349,21 @@ body procedure searchByStudentNumber
 
 	 end loop
 
-end searchByStudentNumber
+end searchByPhoneNumber
 
 
 body procedure wrapUp
 
 	 GUI.SetBackgroundColour (BACKGROUND_COLOUR)
 
+	 GUI.Dispose (buttonClear)
 	 GUI.Dispose (buttonName)
-	 GUI.Dispose (buttonRollNumber)
-	 GUI.Dispose (buttonStudentNumber)
+	 GUI.Dispose (buttonAddress)
+	 GUI.Dispose (buttonPhoneNumber)
 	 GUI.Dispose (buttonQuit)
 	 GUI.Dispose (searchBar)
 
-	 Font.Draw ("Thank you for using the Student Database!", 50, 100, defaultFont, black)
+	 Font.Draw ("Thank you for using the Contact Database!", 50, 100, defaultFont, black)
 
 end wrapUp
 
